@@ -165,11 +165,26 @@
             <div class="space-y-3">
                 <div class="header-green text-white py-2 px-4 rounded-md flex items-center justify-between">
                     <h2 class="text-xs sm:text-sm font-bold tracking-wide flex items-center gap-2">
-                        <i class="fa-solid fa-users"></i> 参加選手登録（4名〜6名）
+                        <i class="fa-solid fa-users"></i> 参加選手登録
                     </h2>
-                    <span class="text-[10px] sm:text-[11px] text-green-200">※選手1〜4は必須登録</span>
                 </div>
                 
+                <!-- 参加人数選択エリア -->
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex flex-col sm:flex-row sm:items-center gap-2">
+                    <label for="playerCountSelect" class="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                        参加人数 <span class="text-red-500">*</span>
+                    </label>
+                    <select id="playerCountSelect" onchange="handlePlayerCountChange()" required class="px-3 py-1.5 rounded border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-500 font-bold text-slate-800">
+                        <option value="1">1名</option>
+                        <option value="2">2名</option>
+                        <option value="3">3名</option>
+                        <option value="4" selected>4名</option>
+                        <option value="5">5名</option>
+                        <option value="6">6名</option>
+                    </select>
+                    <span class="text-[11px] text-slate-500">※選択した人数分の選手情報を全て入力してください。</span>
+                </div>
+
                 <p class="text-xs text-slate-500">※年齢は大会開催日時点の満年齢をご記入ください。</p>
 
                 <!-- スマホ表示：カードスタイル -->
@@ -323,7 +338,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             renderPlayerInputs();
-            calculateTotalFees();
+            handlePlayerCountChange();
         });
 
         function renderPlayerInputs() {
@@ -334,55 +349,54 @@
             cardsContainer.innerHTML = '';
 
             for (let i = 1; i <= 6; i++) {
-                const isRequired = i <= 4;
-                
                 // PC用 テーブル行
                 const tr = document.createElement('tr');
+                tr.id = `player_row_pc_${i}`;
                 tr.className = "hover:bg-slate-50/80 transition-colors";
                 tr.innerHTML = `
                     <td class="py-2 px-2 text-center font-bold text-slate-500 border-r border-slate-200 bg-slate-50/50">${i}</td>
                     <td class="py-2 px-1.5 border-r border-slate-200">
-                        <input type="text" id="p_${i}_name_pc" ${isRequired ? 'required' : ''} placeholder="${isRequired ? '選手氏名' : '選手名(任意)'}" oninput="syncAndCalculate(${i}, 'name', 'pc')"
+                        <input type="text" id="p_${i}_name_pc" placeholder="選手氏名" oninput="syncAndCalculate(${i}, 'name', 'pc')"
                             class="w-full px-2 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs">
                     </td>
                     <td class="py-2 px-1.5 border-r border-slate-200">
-                        <input type="text" id="p_${i}_kana_pc" ${isRequired ? 'required' : ''} placeholder="${isRequired ? 'フリガナ' : 'フリガナ'}" oninput="syncAndCalculate(${i}, 'kana', 'pc')"
+                        <input type="text" id="p_${i}_kana_pc" placeholder="フリガナ" oninput="syncAndCalculate(${i}, 'kana', 'pc')"
                             class="w-full px-2 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs">
                     </td>
                     <td class="py-2 px-1.5 border-r border-slate-200">
-                        <select id="p_${i}_memberType_pc" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'memberType', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
+                        <select id="p_${i}_memberType_pc" onchange="syncAndCalculate(${i}, 'memberType', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
                             <option value="">-- 選択 --</option>
                             <option value="協会員">協会員</option>
                             <option value="一般">一般</option>
                         </select>
                     </td>
                     <td class="py-2 px-1.5 border-r border-slate-200">
-                        <select id="p_${i}_referee_pc" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'referee', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
+                        <select id="p_${i}_referee_pc" onchange="syncAndCalculate(${i}, 'referee', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
                             <option value="">-- 選択 --</option>
                             <option value="有">有</option>
                             <option value="無">無</option>
                         </select>
                     </td>
                     <td class="py-2 px-1.5 border-r border-slate-200">
-                        <select id="p_${i}_gender_pc" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'gender', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
+                        <select id="p_${i}_gender_pc" onchange="syncAndCalculate(${i}, 'gender', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
                             <option value="">--</option>
                             <option value="男">男</option>
                             <option value="女">女</option>
                         </select>
                     </td>
                     <td class="py-2 px-1.5 border-r border-slate-200">
-                        <input type="number" id="p_${i}_age_pc" ${isRequired ? 'required' : ''} min="1" max="120" placeholder="歳" oninput="syncAndCalculate(${i}, 'age', 'pc')"
+                        <input type="number" id="p_${i}_age_pc" min="1" max="120" placeholder="歳" oninput="syncAndCalculate(${i}, 'age', 'pc')"
                             class="w-full px-1 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs text-center">
                     </td>
                     <td class="py-2 px-1.5 border-r border-slate-200">
-                        <select id="p_${i}_bento_pc" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'bento', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
+                        <select id="p_${i}_bento_pc" onchange="syncAndCalculate(${i}, 'bento', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
                             <option value="">-- 選択 --</option>
                             <option value="必要">要</option>
                             <option value="不要">不要</option>
                         </select>
                     </td>
                     <td class="py-2 px-1.5">
-                        <select id="p_${i}_party_pc" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'party', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
+                        <select id="p_${i}_party_pc" onchange="syncAndCalculate(${i}, 'party', 'pc')" class="w-full px-1.5 py-1.5 rounded border border-slate-300 focus:ring-1 focus:ring-emerald-500 text-xs bg-white">
                             <option value="">-- 選択 --</option>
                             <option value="参加">参加</option>
                             <option value="不参加">不参加</option>
@@ -393,37 +407,38 @@
 
                 // スマホ用 カード表示
                 const card = document.createElement('div');
+                card.id = `player_row_sp_${i}`;
                 card.className = "bg-slate-50 border border-slate-200 rounded-lg p-3.5 space-y-3 shadow-sm";
                 card.innerHTML = `
                     <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-                        <span class="font-bold text-slate-700 text-xs bg-slate-200 px-2 py-0.5 rounded">選手 ${i} ${isRequired ? '<span class="text-red-500 text-[10px] ml-1">(必須)</span>' : '<span class="text-slate-400 text-[10px] ml-1">(任意)</span>'}</span>
+                        <span class="font-bold text-slate-700 text-xs bg-slate-200 px-2 py-0.5 rounded">選手 ${i} <span class="text-red-500 text-[10px] ml-1">(必須)</span></span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">氏名 ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <input type="text" id="p_${i}_name_sp" ${isRequired ? 'required' : ''} placeholder="${isRequired ? '例: 山田 太郎' : '任意'}" oninput="syncAndCalculate(${i}, 'name', 'sp')"
+                            <label class="block font-semibold text-slate-600 mb-1">氏名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="p_${i}_name_sp" placeholder="例: 山田 太郎" oninput="syncAndCalculate(${i}, 'name', 'sp')"
                                 class="w-full px-2.5 py-2 rounded border border-slate-300 text-sm bg-white">
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">フリガナ ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <input type="text" id="p_${i}_kana_sp" ${isRequired ? 'required' : ''} placeholder="${isRequired ? '例: ヤマダ タロウ' : '任意'}" oninput="syncAndCalculate(${i}, 'kana', 'sp')"
+                            <label class="block font-semibold text-slate-600 mb-1">フリガナ <span class="text-red-500">*</span></label>
+                            <input type="text" id="p_${i}_kana_sp" placeholder="例: ヤマダ タロウ" oninput="syncAndCalculate(${i}, 'kana', 'sp')"
                                 class="w-full px-2.5 py-2 rounded border border-slate-300 text-sm bg-white">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">協会区分 ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <select id="p_${i}_memberType_sp" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'memberType', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
+                            <label class="block font-semibold text-slate-600 mb-1">協会区分 <span class="text-red-500">*</span></label>
+                            <select id="p_${i}_memberType_sp" onchange="syncAndCalculate(${i}, 'memberType', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
                                 <option value="">-- 選択 --</option>
                                 <option value="協会員">協会員</option>
                                 <option value="一般">一般</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">審判資格 ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <select id="p_${i}_referee_sp" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'referee', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
+                            <label class="block font-semibold text-slate-600 mb-1">審判資格 <span class="text-red-500">*</span></label>
+                            <select id="p_${i}_referee_sp" onchange="syncAndCalculate(${i}, 'referee', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
                                 <option value="">-- 選択 --</option>
                                 <option value="有">有</option>
                                 <option value="無">無</option>
@@ -433,32 +448,32 @@
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">性別 ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <select id="p_${i}_gender_sp" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'gender', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
+                            <label class="block font-semibold text-slate-600 mb-1">性別 <span class="text-red-500">*</span></label>
+                            <select id="p_${i}_gender_sp" onchange="syncAndCalculate(${i}, 'gender', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
                                 <option value="">-- 選択 --</option>
                                 <option value="男">男</option>
                                 <option value="女">女</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">年齢 ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <input type="number" id="p_${i}_age_sp" ${isRequired ? 'required' : ''} min="1" max="120" placeholder="歳" oninput="syncAndCalculate(${i}, 'age', 'sp')"
+                            <label class="block font-semibold text-slate-600 mb-1">年齢 <span class="text-red-500">*</span></label>
+                            <input type="number" id="p_${i}_age_sp" min="1" max="120" placeholder="歳" oninput="syncAndCalculate(${i}, 'age', 'sp')"
                                 class="w-full px-2 py-2 rounded border border-slate-300 text-sm bg-white">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 text-xs">
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">お弁当 ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <select id="p_${i}_bento_sp" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'bento', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
+                            <label class="block font-semibold text-slate-600 mb-1">お弁当 <span class="text-red-500">*</span></label>
+                            <select id="p_${i}_bento_sp" onchange="syncAndCalculate(${i}, 'bento', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
                                 <option value="">-- 選択 --</option>
                                 <option value="必要">要</option>
                                 <option value="不要">不要</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-1">懇親会 ${isRequired ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <select id="p_${i}_party_sp" ${isRequired ? 'required' : ''} onchange="syncAndCalculate(${i}, 'party', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
+                            <label class="block font-semibold text-slate-600 mb-1">懇親会 <span class="text-red-500">*</span></label>
+                            <select id="p_${i}_party_sp" onchange="syncAndCalculate(${i}, 'party', 'sp')" class="w-full px-2 py-2 rounded border border-slate-300 text-xs bg-white">
                                 <option value="">-- 選択 --</option>
                                 <option value="参加">参加</option>
                                 <option value="不参加">不参加</option>
@@ -468,6 +483,46 @@
                 `;
                 cardsContainer.appendChild(card);
             }
+        }
+
+        // 人数選択の変更時にフォームの表示／非表示およびrequired属性を更新
+        function handlePlayerCountChange() {
+            const count = parseInt(document.getElementById('playerCountSelect').value, 10);
+            const fields = ['name', 'kana', 'memberType', 'referee', 'gender', 'age', 'bento', 'party'];
+
+            for (let i = 1; i <= 6; i++) {
+                const rowPc = document.getElementById(`player_row_pc_${i}`);
+                const rowSp = document.getElementById(`player_row_sp_${i}`);
+                const isRequired = i <= count;
+
+                if (isRequired) {
+                    if (rowPc) rowPc.classList.remove('hidden');
+                    if (rowSp) rowSp.classList.remove('hidden');
+                } else {
+                    if (rowPc) rowPc.classList.add('hidden');
+                    if (rowSp) rowSp.classList.add('hidden');
+                }
+
+                fields.forEach(field => {
+                    const pcInput = document.getElementById(`p_${i}_${field}_pc`);
+                    const spInput = document.getElementById(`p_${i}_${field}_sp`);
+
+                    if (isRequired) {
+                        if (pcInput) pcInput.required = true;
+                        if (spInput) spInput.required = true;
+                    } else {
+                        if (pcInput) {
+                            pcInput.required = false;
+                            pcInput.value = '';
+                        }
+                        if (spInput) {
+                            spInput.required = false;
+                            spInput.value = '';
+                        }
+                    }
+                });
+            }
+            calculateTotalFees();
         }
 
         function syncAndCalculate(index, field, source) {
@@ -499,9 +554,10 @@
                 playerCount: 0
             };
 
-            for (let i = 1; i <= 6; i++) {
+            const selectedCount = parseInt(document.getElementById('playerCountSelect').value, 10);
+
+            for (let i = 1; i <= selectedCount; i++) {
                 const nameVal = getPlayerVal(i, 'name');
-                if (!nameVal) continue;
 
                 breakdown.playerCount++;
                 const memberType = getPlayerVal(i, 'memberType');
@@ -548,7 +604,7 @@
                 breakdownHtml += `<div class="flex justify-between text-emerald-300"><span>お弁当代 ¥750 × ${breakdown.bento}個</span><span>¥${(breakdown.bento * PRICING.BENTO).toLocaleString()}</span></div>`;
             }
 
-            document.getElementById('feeBreakdown').innerHTML = breakdownHtml || `<div class="text-slate-500">氏名および各項目を選択すると費用が自動計算されます（入力数: ${breakdown.playerCount}名）</div>`;
+            document.getElementById('feeBreakdown').innerHTML = breakdownHtml || `<div class="text-slate-500">各項目を選択すると費用が自動計算されます（対象: ${selectedCount}名）</div>`;
             document.getElementById('totalAmountDisplay').innerText = `¥${total.toLocaleString()}`;
 
             return { total, players: breakdown.playerCount };
@@ -559,11 +615,11 @@
             event.preventDefault();
 
             const form = document.getElementById('entryForm');
+            const selectedCount = parseInt(document.getElementById('playerCountSelect').value, 10);
             const playersData = [];
-            for (let i = 1; i <= 6; i++) {
-                const name = getPlayerVal(i, 'name');
-                if (!name) continue;
 
+            for (let i = 1; i <= selectedCount; i++) {
+                const name = getPlayerVal(i, 'name');
                 playersData.push({
                     no: i,
                     name: name,
@@ -575,11 +631,6 @@
                     bento: getPlayerVal(i, 'bento'),
                     party: getPlayerVal(i, 'party')
                 });
-            }
-
-            if (playersData.length < 4) {
-                alert('選手1〜4の入力は必須となります。氏名・ふりがな・各選択項目をご確認ください。');
-                return;
             }
 
             const calculation = calculateTotalFees();
@@ -735,8 +786,7 @@
             document.getElementById('modal').classList.add('hidden');
             const form = document.getElementById('entryForm');
             form.reset();
-            renderPlayerInputs();
-            calculateTotalFees();
+            handlePlayerCountChange();
             pendingPayload = null;
         }
     </script>
